@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./env/application.env
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+     - ./env/mongo.env
+    links:
+      - mongo
+    networks:
+      - mongo-compose-network
+
+  mongo:
+    image: mongo
+    environment:
+      - ../env/mongo.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/renatogroffe/Desenvolvimento/Docker/Volumes/MongoDB:/data/db
+    networks:
+      - mongo-compose-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+  commander:
+      image: rediscommander/redis-commander:latest
+      restart: always
+      ports:
+        - "8081:8081"
+      environment:
+        - ./env/redis.env
+networks: 
+    mongo-compose-network:
+      driver: bridge
+
+volumes:
+  url-shortener: {}
